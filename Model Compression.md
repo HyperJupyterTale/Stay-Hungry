@@ -18,7 +18,7 @@
 
 3、选取合适的温度值T来进行训练。
 
-![截屏2022-11-19 上午8.42.49](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-19 上午8.42.49.png)
+![截屏2022-11-19 上午8.42.49](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-19%20上午8.42.49.png)
 
 #### 由一个大模型训练多个专家模型
 
@@ -118,15 +118,15 @@ MNIST，CIFAR10，ASR language system（自己做的）
 
 原始卷积层方法：
 
-![截屏2022-11-14 上午10.32.33](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午10.32.33.png)
+![截屏2022-11-14 上午10.32.33](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午10.32.33.png)
 
 第一种方法是先通过M组两个rank=1的矩阵逼近原始的d * d的2D卷积核，得到M个通道的具有原始二维卷积操作同等大小的feature map，其中M<N，之后再通过N个1 * 1 的卷积核还原原始通道维度：
 
-![截屏2022-11-14 上午10.32.46](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午10.32.46.png)
+![截屏2022-11-14 上午10.32.46](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午10.32.46.png)
 
 第二种方法是先通过K个rank=1的向量，得到中间feature map，再通过N组d * 1 * K的矩形卷积，近似还原得到原始feature map：
 
-![截屏2022-11-14 上午10.33.32](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午10.33.32.png)
+![截屏2022-11-14 上午10.33.32](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午10.33.32.png)
 
 这两种方法的区别：作者认为，第一种方法只能减少输出的N通道的冗余。但是第二种方法可以同时减少输入和输出的冗余。
 
@@ -140,11 +140,11 @@ MNIST，CIFAR10，ASR language system（自己做的）
 
 第一种方法的损失函数：
 
-![截屏2022-11-14 上午10.58.42](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午10.58.42.png)
+![截屏2022-11-14 上午10.58.42](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午10.58.42.png)
 
 第二种方法的损失函数：
 
-![截屏2022-11-14 上午10.59.02](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午10.59.02.png)
+![截屏2022-11-14 上午10.59.02](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午10.59.02.png)
 
 这两种方式损失函数不一样的原因目前也不太懂，可能和公式流程推导不一样有关。
 
@@ -152,7 +152,7 @@ MNIST，CIFAR10，ASR language system（自己做的）
 
 > The problem with optimizing the separable basis through minimizing original filter reconstruction error is that this does not necessarily give the most optimized basis set for the end CNN prediction performance. As an alternative, one can optimize a scheme’s separable basis by aiming to reconstruct the outputs of the original convolutional layer given training data.
 
-![截屏2022-11-14 上午11.06.48](/Users/mac/Library/Application Support/typora-user-images/截屏2022-11-14 上午11.06.48.png)
+![截屏2022-11-14 上午11.06.48](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20上午11.06.48.png)
 
 这种方法在优化近似方案方面有两个主要优势。首先，近似是以训练数据的流形为条件的——在训练数据背景下不相关或多余的原始滤波器尺寸将被最小化数据重建误差所忽略，但仍会被最小化滤波器重建误差所惩罚，因此会无用地占用模型容量。其次，堆叠的近似层可以通过将数据通过近似网送至第l层而不是原始网送至第l层来学习，以纳入前几层的近似误差。这还意味着所有的近似层都可以用反向传播法进行联合优化。
 
