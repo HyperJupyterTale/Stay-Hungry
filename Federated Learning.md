@@ -90,7 +90,7 @@ CIFAR，MNIST，莎士比亚戏剧集
 
 ### 本文主要方法：
 
-![截屏2022-10-30 下午2.56.32](https://github.com/HyperJupyterTale/Stay-Hungry/raw/main/images/截屏2022-10-30%下午2.56.32.png)
+![截屏2022-10-30 下午2.56.32](https://github.com/HyperJupyterTale/Stay-Hungry/raw/main/images/截屏2022-10-30%20下午2.56.32.png)
 
 本质上就是对本地的损失函数增加了一项正则化。通过约束本地参数w尽量不偏离本次server端的参数太多，从而实现对数据异构的缓解。
 
