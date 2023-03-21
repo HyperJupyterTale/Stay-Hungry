@@ -1,2 +1,4 @@
-# Stay-Hungry
-This repository is mainly to share some papers and personal understandings
+# Stay Hungry, Stay Foolish
+这个仓库作为一个研究生社畜的论文分享仓库，会不定时进行更新。目前预计周更，也欢迎各位push我加快更新频率。  
+目前主要的论文分享是关于**联邦学习**和**模型压缩**方面的论文，后续可能会分享一些别的论文。  
+欢迎大家随时和我进行交流。  
