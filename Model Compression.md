@@ -213,3 +213,103 @@ T. Wang, D. J. Wu, A. Coates, and A. Y. Ng. End-to-end text recognition with con
 低秩分解本身还是希望能够减少计算量和参数量。而卷积的过程，本质上就是线性代数的运算。因此，低秩分解其实是一个非常数学的过程。个人感觉只在这种有卷积，并且可以使用数学方式减少计算的时候才有应用的可能。还是具有一定限制条件的。
 
 并且在操作过程中，需要考虑硬件以及框架的支持程度。当然，不止是这一种方法，剪枝等模型压缩的方法也是需要的。
+
+## 3、[Exploiting Linear Structure Within Convolutional Networks for Efficient Evaluation](https://arxiv.org/pdf/1404.0736.pdf)
+
+### 期刊：NIPS 2014
+
+### 针对场景、问题：
+
+同上一篇。同一年提出的。
+
+### 本文主要方法：
+
+1、首先阐明了评价方式。文章中提出了两种距离，但是并没有说两种距离的结合评价方式。
+
+#### 马氏距离
+
+本文采用的是马氏距离，而非欧氏距离。是因为马氏距离对于不同的参数给予了不同的权重，而非欧氏距离认为空间中所有的维度都是等价的。
+
+> A natural choice for an approximation criterion is to minimize ‖  ̃ W − W ‖F . This criterion yields efficient compression schemes using elementary linear algebra, and also controls the operator norm of each linear convolutional layer. However, this criterion assumes that all directions in the space of weights equally affect prediction performance.
+
+马氏距离的计算公式如下：{βn}定义是U (In, Θ) 中不同于yn的h个最大值的索引。
+
+![截屏2022-11-14 下午9.09.16](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20下午9.09.16.png)
+
+> In other words, for each input we back-propagate the difference between the current prediction and the h “most dangerous” mistakes.
+
+但是需要注意的是我们并不会直接用马氏距离，因为直接计算协方差矩阵计算量太大了，因此我们选择做一定的近似。
+
+> We do not report results using this metric, since it requires inverting a matrix of size equal to the number of parameters, which can be prohibitively expensive in large networks. Instead we use an approximation that considers only the diagonal of the covariance matrix.
+
+![截屏2022-11-14 下午9.06.40](/https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20下午9.06.40.png)
+
+#### 数据协方差距离
+
+用该层输入的经验协方差代替各向同性的协方差假设。
+
+> Another alternative, similar to the one considered in [6], is to replace the isotropic covariance assumption by the empirical covariance of the input of the layer.
+
+![截屏2022-11-14 下午9.14.31](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20下午9.14.31.png)
+
+这种方法适应于输入分布，而不需要对数据进行迭代。
+
+> This approach adapts to the input distribution without the need to iterate through the data.
+
+2、矩阵分解
+
+先从理论上通过奇异值分解阐述理论上可以减少奇异值矩阵的秩来减少运算。之后的低秩分解都是基于这个基础理论实现的。
+
+之后引入外积的概念。使用3个1维矩阵可以张成3维矩阵，做到低秩近似。
+
+3、卷积近似
+
+![截屏2022-11-14 下午9.29.19](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20下午9.29.19.png)
+
+XY是卷积核的长和宽，C是通道数，F是特征通道数，MN是原始图像的长和宽，∆是步长，C’是单通道是聚类后的通道数，G是双聚类的输入聚类数，H是双聚类的输出聚类数，K是外积的分解，K1、K2是奇异值分解之后的秩数。
+
+Monochromatic近似主要针对第一层，公式可以理解为C’[CNM+XY(F/C’)NM∆]。主要是通过将CXY分解成为C * 1, 1 * 1, 1 * XY这样的奇异值分解方式。再通过聚类聚合成C’类进一步压缩。面对输入通道固定，输出不固定的情况。
+
+![截屏2022-11-14 下午9.35.53](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-11-14%20下午9.35.53.png)
+
+Biclustering近似针对中间层，对输入和输出都做聚类的情况。既能够使用外积的操作，又能转换成SVD的操作。可以把CXYF分解成为C * (XY) * F的外积或者SVD形式。计算公式如表格所示。
+
+4、在大压缩率的情况下，为了保持模型的性能，可以进行微调。
+
+### 此方法相较于其他方法的优越性：
+
+和上一篇论文相比，理论更加充分。外积和SVD都是非常符合降低计算量且通用的算法。也十分适用于这种场景。
+
+文章中同样提到了FFT。在FFT中，空间域的卷积在频域变成了相乘，可以将速度提升两倍左右。但本文的速度可以进行调整，并且速度快于FFT。而且可以向下兼容FFT。
+
+### 创新点：
+
+1、提供了更为充分的理论证明，将外积与SVD引入低秩分解的过程中。有很多后续的工作都建立在这两项原理的基础之上。
+
+2、为了进一步压缩，引入了聚类。对层输入以及层输出进行聚类，也是可以减少运算量的一种方式，但是这种方式相对于外积和SVD而言量级减少很多。
+
+3、引入了微调的概念。在低秩分解之后，模型仍然可以进行微调，从而更好的提升模型的性能。从而达到在参数和计算减少的同时，仍然能够有一个不错的效果。
+
+### 是否开源：
+
+否
+
+### 数据集：
+
+ImageNet2012
+
+### 注意事项：
+
+1、本网络也可以进行微调。我们也可以使用更苛刻的近似，这样可以获得更大的加速收益，但会损害网络的性能。在这种情况下，被逼近的层和它下面的所有层可以被固定下来，上面的层可以被微调，直到恢复原来的性能。
+
+> Alternatively, one can use a harsher approximation that gives greater speedup gains but hurts the performance of the network. In this case, the approximated layer and all those below it can be fixed and the upper layers can be fine-tuned until the original performance is restored.
+
+2、文章中提到，本文的方法与其他高效评估方法是正交的，如量化或在傅里叶域工作。因此，它们有可能一起使用以获得进一步的收益。
+
+> These techniques are orthogonal to other approaches for efficient evaluation, such as quantization or working in the Fourier domain. Hence, they can potentially be used together to obtain further gains.
+
+### 个人理解：
+
+1、外积是个好东西，可以将低位扩展成高维。但是外积的本质决定了它沿着某一个维度的向量或者张量都是线性相关的。线性相关的话，它能分辨出多少特征呢？【存疑】相当于是第一层卷积和第二层卷积之间就乘了一个系数，这样也有用吗？不就是第一层的结果乘了一个结果就得到了第二层卷积吗？还有必要外积吗？
+
+2、奇异值分解的理论与PCA非常接近，但是SVD的数值稳定性更好一些。[因为PCA需要计算X⊤X的值。](https://blog.csdn.net/wangjian1204/article/details/50642732)
