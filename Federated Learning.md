@@ -137,3 +137,55 @@ FEMNIST，莎士比亚戏剧集
 1、其实本地参数的训练不止只能从本地数据集中来，还有别的信息可以使用。比如每轮server端的参数传回。
 
 2、[正则化项可以防止过拟合，也可以加速收敛。](https://blog.csdn.net/yinyu19950811/article/details/61922893) 本文使用了正则化来解决异构和收敛问题，本质上是有对应关系的。
+
+## 3、 FedPer([Federated Learning with Personalization Layers](https://arxiv.org/pdf/1912.00818.pdf))
+
+### 期刊：无(arxiv)
+
+### 针对场景、问题：
+
+本文主要针对数据异构提出，为了解决server端模型不能处理本地用户的个性化问题。比如相同的数据在不同的用户客户端上面接收不同的标签。
+
+> Hence, same input data can receive different labels from different users implying that the personalized models must differ across users to be able to predict different labels for similar test data.
+
+同时本文的模型能够解决在小数据量上面训练模型的问题。
+
+### 本文主要方法：
+
+![截屏2022-10-30 下午8.34.41](/Users/mac/Library/Application Support/typora-user-images/截屏2022-10-30%20下午8.34.41.png)
+
+WP是个性化参数，放在WB层的后面。更新只更新WB参数，不更新本地的WP参数，这样可以保持个性化的预测。
+
+### 此方法相较于其他方法的优越性：
+
+相比于FedAvg而言，提升了针对于本地用户的个性化需求。并且在小数据量上有着不错的表现。在训练阶段，能够有更高的准确率和更快的收敛。
+
+### 创新点：
+
+我们建议通过将深度学习模型看作基础+个性化层来捕获联邦学习中的个性化方面。我们的训练算法包括通过联邦平均(或其变体)训练的基本层和仅从具有随机梯度下降(或其变体)的局部数据训练的个性化层。我们证明了不受联邦平均(FedAvg)过程影响的个性化层可以帮助对抗统计异质性的不良影响。
+
+> We propose to capture personalization aspects in federated learning by viewing deep learning models as base + personalization layers as illustrated. Our training algorithm comprises of the base layers being trained by federated averaging (or some variant thereof) and personalization layers being trained only from local data with stochastic gradient descent (or some variant thereof). We demonstrate that the personalization layers that are free from the federated averaging (FedAvg) procedure can help combat the ill-effects of statistical heterogeneity.
+
+主要是提供了本地不是所有的参数都需要上传，完全可以进上传部分参数，将剩下的一部分留作“个性化”的需求，不进行同步。
+
+### 是否开源：
+
+否
+
+### 数据集：
+
+CIFAR-10/CIFAR-100，FLICKR-AES
+
+### 注意事项：
+
+1、文章中提到一点：在医疗领域中，可以存在假设：可以将全局训练步骤与后续的本地个性化步骤分离开来。（Chen, Y., Wang, J., Yu, C., Gao, W., and Qin, X. (2019). FedHealth: A Federated Transfer Learning Framework for Wearable Healthcare. ArXiv, abs/1907.09173.）（Vepakomma, P., Gupta, O., Swedish, T., and Raskar, R. (2018). Split learning for health: Distributed deep learning without sharing raw patient data. ArXiv, abs/1812.00564.）
+
+2、作者做出了四个宽泛性假设：(a)任何客户端的数据集不会在全局聚合中发生变化，(b)batch size和epoch在客户端和全局聚合中是不变的，(c)每个客户端使用SGD在全局聚合之间更新(WB, WPj)， (d)在整个训练过程中所有N个用户设备都是可以提供更新的。
+
+> a) the dataset at any client doesn’t change across global aggregations, (b) the batch size b and the #epochs e are invariant across clients and across global aggregations, (c) each client uses SGD to update (WB, WPj ) between global aggregations, and (d) all N user devices are active throughout the training process.
+
+### 个人理解：
+
+1、其实层与层之间的参数不是都需要上传，也不是都需要更新的，进行更细规模的区分，从而选择性的上传、更新，可以从某种程度上保存个性化的参数，也能够获取全局模型的参数。获取的全局模型的参数，可以聚合多个模型的参数，从而在小的数据量的情况下，仍然可以得到较好的训练结果。
+
+2、值得思考的一点是：为什么选择了个性化的层在基础层的后面而不是前面呢？在神经网络中，偏后面的层是更general的细节，偏前面的层是更spesific的细节。学习个性化的不应该是spesific的细节会有更多的不一样吗？难道是因为最后和分类层相邻，和最后类别判定强相关，所以才选择了后面的层？如果颠倒一下会怎么样？
