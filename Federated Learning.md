@@ -152,7 +152,7 @@ FEMNIST，莎士比亚戏剧集
 
 ### 本文主要方法：
 
-![截屏2022-10-30 下午8.34.41](/Users/mac/Library/Application Support/typora-user-images/截屏2022-10-30%20下午8.34.41.png)
+![截屏2022-10-30 下午8.34.41](https://github.com/HyperJupyterTale/Stay-Hungry/blob/main/images/截屏2022-10-30%20下午8.34.41.png)
 
 WP是个性化参数，放在WB层的后面。更新只更新WB参数，不更新本地的WP参数，这样可以保持个性化的预测。
 
